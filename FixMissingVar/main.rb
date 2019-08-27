@@ -47,17 +47,20 @@ commitHash = commitHash.gsub("\n", "")
 print "\n"
 # Init  Analysis
 gitProject = GitProject.new(projectName, projectPath, "samuelbrasileiro", password)
-conflictResult = gitProject.conflictScenario(commitHash) #aqui vamos pegar o parentMerge
+#TIRAR ESSE#conflictResult = gitProject.conflictScenario(commitHash) #aqui vamos pegar o parentMerge
 #ESTRUTURA CR: [bool, [commits]]
 gitProject.deleteProject()
 
-if conflictResult[0] #se existir 2 parents
-  conflictParents = conflictResult[1] #conflictParents = parentMerge
+#TIRAR ESSE#if conflictResult[0] #se existir 2 parents
+if 1
+  #TIRAR ESSE#conflictParents = conflictResult[1] #conflictParents = parentMerge
   #ESTRUTURA [PAI1,PAI2,FILHO]
-  travisLog = gitProject.getTravisLog(commitHash)#pegar a log do nosso commit
+  #TIRAR ESSE #travisLog = gitProject.getTravisLog(commitHash)#pegar a log do nosso commit
 
   unavailableSymbolExtractor = UnavailableSymbolExtractor.new()
-  unavailableResult = unavailableSymbolExtractor.extractionFilesInfo(travisLog)
+  #TIRAR ESSE #unavailableResult = unavailableSymbolExtractor.extractionFilesInfo(travisLog)
+  unavailableResult = ["unavailableSymbolMethod", [["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"]], 9]
+
   print "unavailable Result:\n\n\n"
   print unavailableResult
 
@@ -125,9 +128,8 @@ if conflictResult[0] #se existir 2 parents
     conflictCauses = unavailableResult[1]
     ocurrences = unavailableResult[2]
 
-    bcUnavailableSymbol = BCUnavailableSymbol.new(gumTree, projectName, projectPath, commitHash,
-                                                  conflictParents, conflictCauses)
-    #bcUnSymbolResult = bcUnavailableSymbol.getGumTreeAnalysis()
+    #TIRAR ESSE #bcUnavailableSymbol = BCUnavailableSymbol.new(gumTree, projectName, projectPath, commitHash, conflictParents, conflictCauses)
+    #TIRAR ESSE#bcUnSymbolResult = bcUnavailableSymbol.getGumTreeAnalysis()
     bcUnSymbolResult = ["builderWithHighestTrackableLatencyMillis", "4cf58a80635f5799440da084adc5b41e2139b3ab\n"]
     print("\nbcUnSymbolResult = \n#{bcUnSymbolResult}\n")
     
