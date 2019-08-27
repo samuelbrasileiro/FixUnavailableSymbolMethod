@@ -6,6 +6,7 @@ class FixUnavailableSymbol
     @filePath = filePath
     @missingVar = missingVar
     @projectName = projectName
+
     @line = line
     @initialPath = ""
   end
@@ -24,6 +25,8 @@ class FixUnavailableSymbol
     %x(git checkout #{@baseCommit})
 
     # getting declaration
+    puts @projectPath
+    puts Dir.getwd+ "/" + @filePath
     baseFileContent = File.read(Dir.getwd + "/" + @filePath)
 
     # getting merge file

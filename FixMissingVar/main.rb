@@ -127,8 +127,8 @@ if conflictResult[0] #se existir 2 parents
 
     bcUnavailableSymbol = BCUnavailableSymbol.new(gumTree, projectName, projectPath, commitHash,
                                                   conflictParents, conflictCauses)
-    bcUnSymbolResult = bcUnavailableSymbol.getGumTreeAnalysis()
-
+    #bcUnSymbolResult = bcUnavailableSymbol.getGumTreeAnalysis()
+    bcUnSymbolResult = ["builderWithHighestTrackableLatencyMillis", "4cf58a80635f5799440da084adc5b41e2139b3ab\n"]
     print("\nbcUnSymbolResult = \n#{bcUnSymbolResult}\n")
     
     if bcUnSymbolResult[0] != ""
