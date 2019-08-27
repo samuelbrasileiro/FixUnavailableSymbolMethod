@@ -48,8 +48,8 @@ class BCUnavailableSymbol
 
 	def getGumTreeAnalysis()
 		actualPath = Dir.pwd
-		
 		pathCopies = createCopyProject()
+		#print "pathed"
 		#  		   					result 		  left 			right 			MergeCommit 	parent1 		parent2 	problemas
 		out = gumTreeDiffByBranch(pathCopies[1], pathCopies[2], pathCopies[3], pathCopies[4], getPathLocalClone(), getPathLocalClone())
 		puts out[0]
@@ -73,18 +73,21 @@ class BCUnavailableSymbol
 		modifiedFilesDiff = []
 		addedFiles = []
 		deletedFiles = []
+
 		begin
-			# kill = %x(pkill -f gumtree)
+			kill = %x(pkill -f gumtree)
 			sleep(5)
-      #print "CHEGUEI AQUI GUMTREE"
+			print "aqui1"
 			thr = Thread.new { diff = system "bash", "-c", "exec -a gumtree ./gumtree webdiff #{firstBranch.gsub("\n","")} #{secondBranch.gsub("\n","")}" }
 			sleep(10)
 			mainDiff = %x(wget http://127.0.0.1:4567/ -q -O -)
 			modifiedFilesDiff = getDiffByModification(mainDiff[/Modified files <span class="badge">(.*?)<\/span>/m, 1])
 			addedFiles = getDiffByAddedFile(mainDiff[/Added files <span class="badge">(.*?)<\/span>/m, 1])
 			deletedFiles = getDiffByDeletedFile(mainDiff[/Deleted files <span class="badge">(.*?)<\/span>/m, 1])
-			
-			# kill = %x(pkill -f gumtree)
+
+			print "aqui2"
+
+			kill = %x(pkill -f gumtree)
 			sleep(5)
 		rescue Exception => e
 			puts e
@@ -97,10 +100,15 @@ class BCUnavailableSymbol
 		index = 0
 		result = Hash.new()
 		while(index < numberOcorrences.to_i)
-			gumTreePage = Nokogiri::HTML(RestClient.get("http://127.0.0.1:4567/script/#{index}"))
-			file = gumTreePage.css('div.col-lg-12 h3 small').text[/(.*?) \-\>/m, 1].gsub(".java", "")
-			script = gumTreePage.css('div.col-lg-12 pre').text
-			result[file.to_s] = script.gsub('"', "\"")
+			begin
+				gumTreePage = Nokogiri::HTML(RestClient.get("http://127.0.0.1:4567/script/#{index}"))
+				file = gumTreePage.css('div.col-lg-12 h3 small').text[/(.*?) \-\>/m, 1].gsub(".java", "")
+				script = gumTreePage.css('div.col-lg-12 pre').text
+				result[file.to_s] = script.gsub('"', "\"")
+			rescue Exception => e
+				print e
+			end
+
 			index += 1
 		end
 		return result
@@ -167,7 +175,9 @@ class BCUnavailableSymbol
 	end
 	
 	def createCopyProject()
+
 		copyBranch = createDirectories()
+
 		Dir.chdir @pathLocalClone
 		puts "git checkout"
 		currentBranch = getMergeCommit()
@@ -176,6 +186,7 @@ class BCUnavailableSymbol
 		checkout = %x(git checkout #{base} > /dev/null 2>&1)
 		clone = %x(cp -R #{@pathLocalClone} #{copyBranch[4]})
 		invalidFiles = %x(find #{copyBranch[4]} -type f -regextype posix-extended -iregex '.*\.(sh|vm|md|yaml|yml|conf|scala|properties|less|txt|gitignore|sql|html|gradle|stg|lex|classpath|jsp|form|sql|stg|sql.stg|py|groovy|generator|jade|coffee|hbs|in|am|mk|ac|ico|md5|adoc|xsd)$' -delete)
+
 		invalidFiles = %x(find #{copyBranch[4]} -type f  ! -name "*.?*" -delete)
 		checkout = %x(git checkout #{@mergeCommit} > /dev/null 2>&1)
 		clone = %x(cp -R #{@pathLocalClone} #{copyBranch[1]})
@@ -197,12 +208,14 @@ class BCUnavailableSymbol
 	end
 
 	def deleteProjectCopies(pathCopies)
+
 		delete = %x(rm -rf #{pathCopies[0]})
 	end
 
 
 	def verifyBuildConflict(baseLeft, leftResult, baseRight, rightResult, basePath, leftPath, rightPath, resultPath)
 		count = 0
+		#print("verified")
 		while(count < @conflictCauses.size)
 			index = @conflictCauses[count][0]
 			if(baseRight[0][index] != nil and baseRight[0][index].to_s.match(/Delete SimpleName: #{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))

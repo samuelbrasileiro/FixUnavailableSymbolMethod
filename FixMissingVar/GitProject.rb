@@ -130,7 +130,7 @@ class GitProject
 
 		parentsMerge = getParentsMergeIfTrue(mergeCommit) #[pai1,pai2,filho]
 		print "parents merge:\n"
-		print parentsMerge
+		#print parentsMerge
 		parentOne = nil
 		parentTwo = nil
 

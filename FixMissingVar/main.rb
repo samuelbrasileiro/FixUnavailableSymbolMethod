@@ -43,7 +43,7 @@ projectName = repLog.split("//")[1]
 projectName = projectName.split("github.com/").last.gsub("\n","").gsub(".git", "")
 commitHash = `#{"git rev-parse --verify HEAD"}`
 commitHash = commitHash.gsub("\n", "")
-print commitHash
+#print commitHash
 print "\n"
 # Init  Analysis
 gitProject = GitProject.new(projectName, projectPath, "samuelbrasileiro", password)
@@ -58,8 +58,12 @@ if conflictResult[0] #se existir 2 parents
 
   unavailableSymbolExtractor = UnavailableSymbolExtractor.new()
   unavailableResult = unavailableSymbolExtractor.extractionFilesInfo(travisLog)
-  print "unavailable Result:\n"
+  print "unavailable Result:\n\n\n"
   print unavailableResult
+
+
+
+
   if unavailableResult[0] == "unavailableSymbolVariable"
     conflictCauses = unavailableResult[1]
     ocurrences = unavailableResult[2]
@@ -67,8 +71,9 @@ if conflictResult[0] #se existir 2 parents
     bcUnavailableSymbol = BCUnavailableSymbol.new(gumTree, projectName, projectPath, commitHash,
       conflictParents, conflictCauses)
     bcUnSymbolResult = bcUnavailableSymbol.getGumTreeAnalysis()
-
+    print("bcUNres = \n#{bcUnSymbolResult}\n")
     if bcUnSymbolResult[0] != ""
+
       baseCommit = bcUnSymbolResult[1]
       cause = bcUnSymbolResult[0]
       className = conflictCauses[0][0]
@@ -77,26 +82,26 @@ if conflictResult[0] #se existir 2 parents
       conflictFile = conflictCauses[0][3].tr(":","")
       fileToChange = conflictFile.gsub(/\/home\/travis\/build\/[a-z|A-Z|0-9]+\/[a-z|A-Z|0-9]+\//,"")
       conflictLine = Integer(conflictCauses[0][4].gsub("[","").gsub("]","").split(",")[0])
-      
+
 
       if className == callClassName
         puts "A build Conflict was detect, the conflict type is " + unavailableResult[0] + "."
         puts "Do you want fix it? Y or n"
         resp = STDIN.gets()
         # resp = "n"
-        
+
         puts ">>>>>>>>>>>>>>>class"
         puts className
         puts ">>>>>>>>>>>>>>>method"
         puts methodNameByTravis
-        
+
         if resp != "n" && resp != "N"
           fixer = FixUnavailableSymbol.new(projectName, projectPath, baseCommit, fileToChange, cause, conflictLine)
           fixer.fix(className)
         end
       end
 
-      
+
       # TODO: get back deleted files
       puts ">>>>>>>>>>>>>>>missing symbol"
       puts cause
@@ -124,18 +129,20 @@ if conflictResult[0] #se existir 2 parents
                                                   conflictParents, conflictCauses)
     bcUnSymbolResult = bcUnavailableSymbol.getGumTreeAnalysis()
 
+    print("\nbcUnSymbolResult = \n#{bcUnSymbolResult}\n")
+    
     if bcUnSymbolResult[0] != ""
       baseCommit = bcUnSymbolResult[1]
-      cause = bcUnSymbolResult[0]
+      cause = bcUnSymbolResult[0]#gumtree
       className = conflictCauses[0][0]
       callClassName = conflictCauses[0][2]
-      methodNameByTravis = conflictCauses[0][1]
+      methodNameByTravis = conflictCauses[0][1]#travis
       conflictFile = conflictCauses[0][3].tr(":","")
       fileToChange = conflictFile.gsub(/\/home\/travis\/build\/[a-z|A-Z|0-9]+\/[a-z|A-Z|0-9]+\//,"")
       conflictLine = Integer(conflictCauses[0][4].gsub("[","").gsub("]","").split(",")[0])
 
-
-      if className == callClassName
+      print "class name / callclassname #{className}/ #{callClassName}\n\n\n"
+      if cause == methodNameByTravis
         puts "A build Conflict was detect, the conflict type is " + unavailableResult[0] + "."
         puts "Do you want fix it? Y or n"
         resp = STDIN.gets()
@@ -163,7 +170,7 @@ if conflictResult[0] #se existir 2 parents
       puts ">>>>>>>>>>>>>>>class"
       puts className
       puts ">>>>>>>>>>>>>>>method"
-      puts methodName
+      puts methodNameByTravis
       puts ">>>>>>>>>>>>>>>line"
       puts conflictLine
       puts ">>>>>>>>>>>>>>>base"
