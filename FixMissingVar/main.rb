@@ -130,8 +130,8 @@ if 1
     
     if bcUnSymbolResult[0] != ""
       baseCommit = bcUnSymbolResult[1]
-      cause = bcUnSymbolResult[0][0]#gumtree
-      substituter = bcUnSymbolResult[0][1]
+      cause = bcUnSymbolResult[0][0]
+      substituter = bcUnSymbolResult[0][1]#metodo identificado pelo log da gumtree
       className = conflictCauses[0][0]
       callClassName = conflictCauses[0][2]
       methodNameByTravis = conflictCauses[0][1]#travis
@@ -150,15 +150,14 @@ if 1
         puts className
         puts ">>>>>>>>>>>>>>>method"
         puts methodNameByTravis
-
+        puts ">>>>>>>>>>>>>>>substituter"
+        puts substituter
         if resp != "n" && resp != "N"
-          fixer = FixUnavailableSymbol.new(projectName, projectPath, baseCommit, fileToChange, cause, conflictLine,substituter)
-          fixer.fix(className)
+          fixer = FixUnavailableSymbol.new(projectName, projectPath, baseCommit, fileToChange, cause, conflictLine, substituter)
+          fixer.fixMethod
         end
       end
 
-
-      # TODO: get back deleted files
       puts ">>>>>>>>>>>>>>>missing symbol"
       puts cause
       puts ">>>>>>>>>>>>>>>file "

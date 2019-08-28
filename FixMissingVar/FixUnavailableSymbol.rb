@@ -1,12 +1,12 @@
 class FixUnavailableSymbol
 
-  def initialize(projectName, projectPath, baseCommit, filePath, missingMethod, line, declaratedMethod)
+  def initialize(projectName, projectPath, baseCommit, filePath, missingMethod, line, declaredMethod)
     @projectPath = projectPath
     @baseCommit = baseCommit
     @filePath = filePath
     @missingMethod = missingMethod
     @projectName = projectName
-    @declaratedMethod = declaratedMethod
+    @declaredMethod = declaredMethod
 
     @line = line
     @initialPath = ""
@@ -18,11 +18,28 @@ class FixUnavailableSymbol
   end
 
 
-  def fixMethod(className)
+  def fixMethod()
 
+
+    fileDirectory = Dir.getwd + "/" + @filePath
+    puts fileDirectory
+    #armazenar o conteudo do arquivo que esta faltando o metodo
+    baseFileContent = File.read(fileDirectory)
+    puts baseFileContent
+  puts "missing = " + @missingMethod
+    puts "declared = "+ @declaredMethod
+    #substituir o metodo que mudou o nome para o que foi declarado
+    baseFileContent.gsub!(@missingMethod, @declaredMethod)
+
+    #escrever no arquivo
+    e = File.open(fileDirectory, 'w')
+    e.write(baseFileContent)
+    e.close
   end
 
-  def fix(className)
+
+
+  def fixVariable(className)
     begin
       # cloning baseCommit
       @initialPath = Dir.getwd

@@ -228,7 +228,7 @@ class BCUnavailableSymbol
 			end
 			if(baseLeft[0][@conflictCauses[count][0]] != nil and baseLeft[0][@conflictCauses[count][0]].to_s.match(/Delete SimpleName: #{@conflictCauses[count][1]}[\s\S]*[\n\r]?: /))
 				if(baseRight[0][@conflictCauses[count][2]] != nil and baseRight[0][@conflictCauses[count][2]].to_s.match(/Insert (SimpleName|QualifiedName): [a-zA-Z\.]*?#{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))
-					puts "BSLEFT:\n#{baseLeft[0][@conflictCauses[count][0]]}"
+
 					substituter = baseLeft[0][@conflictCauses[count][0]].to_s.sub(/[\s\S]*Update SimpleName: #{@conflictCauses[count][1]}\([0-9]+\) to /,"")
 					substituter = substituter.sub(/( |\()[\s\S]+/,"")
 					#Update SimpleName: #{@conflictCauses[count][1]}(260) to builder on Method builderWithHighestTrackableLatencyMillis
