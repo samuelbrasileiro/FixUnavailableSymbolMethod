@@ -61,8 +61,8 @@ if 1
   #TIRAR ESSE #unavailableResult = unavailableSymbolExtractor.extractionFilesInfo(travisLog)
   unavailableResult = ["unavailableSymbolMethod", [["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"]], 9]
 
-  print "unavailable Result:\n\n\n"
-  print unavailableResult
+  #print "unavailable Result:\n\n\n"
+  #print unavailableResult
 
 
 
@@ -131,7 +131,7 @@ if 1
     #TIRAR ESSE #bcUnavailableSymbol = BCUnavailableSymbol.new(gumTree, projectName, projectPath, commitHash, conflictParents, conflictCauses)
     #TIRAR ESSE#bcUnSymbolResult = bcUnavailableSymbol.getGumTreeAnalysis()
     bcUnSymbolResult = ["builderWithHighestTrackableLatencyMillis", "4cf58a80635f5799440da084adc5b41e2139b3ab\n"]
-    print("\nbcUnSymbolResult = \n#{bcUnSymbolResult}\n")
+    #print("\nbcUnSymbolResult = \n#{bcUnSymbolResult}\n")
     
     if bcUnSymbolResult[0] != ""
       baseCommit = bcUnSymbolResult[1]
@@ -140,7 +140,7 @@ if 1
       callClassName = conflictCauses[0][2]
       methodNameByTravis = conflictCauses[0][1]#travis
       conflictFile = conflictCauses[0][3].tr(":","")
-      fileToChange = conflictFile.gsub(/\/home\/travis\/build\/[a-z|A-Z|0-9]+\/[a-z|A-Z|0-9]+\//,"")
+      fileToChange = conflictFile.gsub(/\/home\/travis\/build\/[^\/]+\/[^\/]+\//, "")
       conflictLine = Integer(conflictCauses[0][4].gsub("[","").gsub("]","").split(",")[0])
 
       print "class name / callclassname #{className}/ #{callClassName}\n\n\n"

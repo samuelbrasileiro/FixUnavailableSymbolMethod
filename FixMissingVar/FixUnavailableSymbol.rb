@@ -25,8 +25,8 @@ class FixUnavailableSymbol
     %x(git checkout #{@baseCommit})
 
     # getting declaration
-    puts @projectPath
-    puts Dir.getwd+ "/" + @filePath
+    puts "filePath =\n" + @filePath
+
     baseFileContent = File.read(Dir.getwd + "/" + @filePath)
 
     # getting merge file
