@@ -52,7 +52,8 @@ class BCUnavailableSymbol
 		#print "pathed"
 		#  		   					result 		  left 			right 			MergeCommit 	parent1 		parent2 	problemas
 		out = gumTreeDiffByBranch(pathCopies[1], pathCopies[2], pathCopies[3], pathCopies[4], getPathLocalClone(), getPathLocalClone())
-		puts out[0]
+		puts "leout =\n#{out}"
+
 		deleteProjectCopies(pathCopies)
 		Dir.chdir actualPath
 		return out, pathCopies[5]
@@ -217,15 +218,21 @@ class BCUnavailableSymbol
 		count = 0
 		#print("verified")
 		while(count < @conflictCauses.size)
-			index = @conflictCauses[count][0]
-			if(baseRight[0][index] != nil and baseRight[0][index].to_s.match(/Delete SimpleName: #{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))
+
+			if(baseRight[0][@conflictCauses[count][0]] != nil and baseRight[0][@conflictCauses[count][0]].to_s.match(/Delete SimpleName: #{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))
 				if (baseLeft[0][@conflictCauses[count][2]] != nil and baseLeft[0][@conflictCauses[count][2]].to_s.match(/Insert (SimpleName|QualifiedName): [a-zA-Z\.]*?#{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))
+					puts "BSRGHT:\n#{baseRight}"
+					puts "BSLEFT:\n#{baseLeft}"
 					return @conflictCauses[count][1]
 				end
 			end
 			if(baseLeft[0][@conflictCauses[count][0]] != nil and baseLeft[0][@conflictCauses[count][0]].to_s.match(/Delete SimpleName: #{@conflictCauses[count][1]}[\s\S]*[\n\r]?: /))
 				if(baseRight[0][@conflictCauses[count][2]] != nil and baseRight[0][@conflictCauses[count][2]].to_s.match(/Insert (SimpleName|QualifiedName): [a-zA-Z\.]*?#{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))
-					return @conflictCauses[count][1]
+					puts "BSLEFT:\n#{baseLeft[0][@conflictCauses[count][0]]}"
+					substituter = baseLeft[0][@conflictCauses[count][0]].to_s.sub(/[\s\S]*Update SimpleName: #{@conflictCauses[count][1]}\([0-9]+\) to /,"")
+					substituter = substituter.sub(/( |\()[\s\S]+/,"")
+					#Update SimpleName: #{@conflictCauses[count][1]}(260) to builder on Method builderWithHighestTrackableLatencyMillis
+					return @conflictCauses[count][1], substituter
 				end
 			end
 			count += 1

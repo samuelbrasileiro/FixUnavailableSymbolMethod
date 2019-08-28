@@ -1,11 +1,12 @@
 class FixUnavailableSymbol
 
-  def initialize(projectName, projectPath, baseCommit, filePath, missingVar, line)
+  def initialize(projectName, projectPath, baseCommit, filePath, missingMethod, line, declaratedMethod)
     @projectPath = projectPath
     @baseCommit = baseCommit
     @filePath = filePath
-    @missingVar = missingVar
+    @missingMethod = missingMethod
     @projectName = projectName
+    @declaratedMethod = declaratedMethod
 
     @line = line
     @initialPath = ""
@@ -16,130 +17,163 @@ class FixUnavailableSymbol
     %x(rm -rf baseCommitClone/)
   end
 
-  def fix(className)
-    
-    # cloning baseCommit
-    @initialPath = Dir.getwd
-    %x(git clone https://github.com/#{@projectName} baseCommitClone)
-    Dir.chdir("baseCommitClone/")
-    %x(git checkout #{@baseCommit})
 
-    # getting declaration
-    puts "filePath =\n" + @filePath
+  def fixMethod(className)
 
-    baseFileContent = File.read(Dir.getwd + "/" + @filePath)
-
-    # getting merge file
-    mergeFileContent = File.read(@projectPath + "/" + @filePath)
-
-    # declarationPoints = originalFileContent.scan(/[^return].* #{@missingVar}[;| ].*;*/)
-    # declarationPoints.delete_if {|x| x.match("return " + @missingVar + ";") != nil }
-
-    declaration = ""
-    declarationLine = 0
-
-    methodName = getMethodName(baseFileContent, @line)
-
-    if methodName != "" 
-      
-      baseStartScope, baseEndScope = getMethodScope(baseFileContent, methodName)
-
-      # get declaration on method scope
-      declaration = baseFileContent[baseStartScope..baseEndScope].scan(/[^return].* #{@missingVar}[;| ].*;*/)[0]
-
-      # search line in method where there is the declaration
-      baseDeclarationIndex = baseFileContent[baseStartScope, baseEndScope].index(declaration)
-      baseDeclarationLine = baseFileContent[baseStartScope, baseEndScope][0..baseDeclarationIndex].count("\n")
-      
-
-      # find line of method on merge commit
-      mergeStartScope, mergeEndScope = getMethodScope(mergeFileContent, methodName)
-      mergeFirstUsageIndex = baseFileContent[mergeStartScope, mergeEndScope].index(@missingVar)
-      mergeFirstUsageLine = baseFileContent[mergeStartScope, mergeEndScope][0..mergeFirstUsageIndex].count("\n")
-
-      # save the line in the method
-      declarationLine = baseDeclarationLine
-      if declarationLine > mergeFirstUsageLine
-        declarationLine = mergeFirstUsageLine
-      end
-
-      # line on merge commit to insert declaration
-      mergeStartScopeLine = mergeFileContent[0..mergeStartScope].count("\n")
-      declarationLine = declarationLine + mergeStartScopeLine
-    else
-      # search for the class
-      # get the begin and the end of the class
-      baseStartScope, baseEndScope = getClassScope(baseFileContent, className)
-      scope = baseFileContent[baseStartScope..baseEndScope]
-      
-      # search the declaration in class scope
-      declarationScanned = baseFileContent[baseStartScope..baseEndScope].scan(/[^return].* #{@missingVar}[;| ].*;*/)
-      
-      if declarationScanned.length > 1
-        
-        declarationScannedIndexes = []
-
-        lastIndex = 0
-        declarationScanned do |oneDeclaration|
-          lastIndex = scope[lastIndex, 0].index(oneDeclaration)
-          declarationScannedIndexes.push(lastIndex)
-        end
-        
-        while declarationScanned.length > 1
-          
-          indexFirst = declarationScannedIndexes[0]
-          
-          openScope = scopeClass[baseStartScope..indexFirst].count("{")
-          closeScope = scopeClass[baseStartScope..indexFirst].count("}")
-
-          if openScope > closeScope
-            declarationScanned.delete_at(0)
-            declarationScannedIndexes.delete_at(0)
-          else
-            declarationScanned = [declarationScanned[0]]
-            declarationScannedIndexes = [declarationScannedIndexes[0]]
-          end
-        end      
-      end
-
-      declaration = declarationScanned[0]
-
-      mergeStartScope, mergeEndScope = getClassScope(mergeFileContent, className)
-      declarationLine = baseFileContent[0..mergeStartScope].count("\n") + 1
-    end
-
-    # declaration = declarationPoints[0]
-    # indexOfDeclaration = originalFileContent.index(declaration)
-    # declarationLine = originalFileContent[0..indexOfDeclaration].count "\n"  
-    # 
-    # if declarationPoints.length > 1 && false # TODO: remove this && false
-    #   declarationPoints.each do |decls|
-    #     puts decls
-    #   end
-    #   puts "error"
-    #   puts "need verify the context to know what declaration is true"
-    #   return
-    # else
-    #   indexOfDeclaration = originalFileContent.index(declarationPoints[0])
-    #   declarationLine = originalFileContent[0..indexOfDeclaration].count "\n"  
-    # end
-
-    # set declaration again and delete baseCommit
-    puts "try set "
-    puts declaration
-    puts "in line: "
-    puts declarationLine
-    puts "where the file has lines equals to: "
-    puts mergeFileContent.count("\n")
-    setDeclaration(declaration, declarationLine)
-    deleteClone()
   end
+
+  def fix(className)
+    begin
+      # cloning baseCommit
+      @initialPath = Dir.getwd
+      %x(git clone https://github.com/#{@projectName} baseCommitClone)
+      Dir.chdir("baseCommitClone/")
+      %x(git checkout #{@baseCommit})
+
+      # getting declaration
+      #puts "filePath =\n" + @filePath
+
+      baseFileContent = File.read(Dir.getwd + "/" + @filePath)
+
+      # getting merge file
+      mergeFileContent = File.read(@projectPath + "/" + @filePath)
+
+      declaration = ""
+      declarationLine = 0
+      puts "base file content = " + baseFileContent
+      methodName = getMethodName(baseFileContent, @line)
+      #puts "method name = " + methodName
+
+      if methodName != ""
+
+        baseStartScope, baseEndScope = getMethodScope(baseFileContent, methodName)
+        puts "baseStartScope = #{baseStartScope}"
+        puts "baseEndScope = #{baseEndScope}"
+
+        # get declaration on method scope
+        declaration = baseFileContent[baseStartScope..baseEndScope].scan(/[^return].* #{@missingMethod}[;| ].*;*/)[0]
+        puts "declaration = #{declaration}"
+        # search line in method where there is the declaration
+        baseDeclarationIndex = baseFileContent[baseStartScope, baseEndScope].index(declaration)
+        baseDeclarationLine = baseFileContent[baseStartScope, baseEndScope][0..baseDeclarationIndex].count("\n")
+
+
+        # find line of method on merge commit
+        mergeStartScope, mergeEndScope = getMethodScope(mergeFileContent, methodName)
+        mergeFirstUsageIndex = baseFileContent[mergeStartScope, mergeEndScope].index(@missingMethod)
+        mergeFirstUsageLine = baseFileContent[mergeStartScope, mergeEndScope][0..mergeFirstUsageIndex].count("\n")
+
+        # save the line in the method
+        declarationLine = baseDeclarationLine
+        if declarationLine > mergeFirstUsageLine
+          declarationLine = mergeFirstUsageLine
+        end
+
+        # line on merge commit to insert declaration
+        mergeStartScopeLine = mergeFileContent[0..mergeStartScope].count("\n")
+        declarationLine = declarationLine + mergeStartScopeLine
+      else
+        # search for the class
+        # get the begin and the end of the class
+        baseStartScope, baseEndScope = getClassScope(baseFileContent, className)
+        scope = baseFileContent[baseStartScope..baseEndScope]
+
+        # search the declaration in class scope
+        declarationScanned = baseFileContent[baseStartScope..baseEndScope].scan(/[^return].* #{@missingMethod}[;| ].*;*/)
+
+        if declarationScanned.length > 1
+
+          declarationScannedIndexes = []
+
+          lastIndex = 0
+          declarationScanned do |oneDeclaration|
+            lastIndex = scope[lastIndex, 0].index(oneDeclaration)
+            declarationScannedIndexes.push(lastIndex)
+          end
+
+          while declarationScanned.length > 1
+
+            indexFirst = declarationScannedIndexes[0]
+
+            openScope = scopeClass[baseStartScope..indexFirst].count("{")
+            closeScope = scopeClass[baseStartScope..indexFirst].count("}")
+
+            if openScope > closeScope
+              declarationScanned.delete_at(0)
+              declarationScannedIndexes.delete_at(0)
+            else
+              declarationScanned = [declarationScanned[0]]
+              declarationScannedIndexes = [declarationScannedIndexes[0]]
+            end
+          end
+        end
+
+        declaration = declarationScanned[0]
+
+        mergeStartScope, mergeEndScope = getClassScope(mergeFileContent, className)
+        declarationLine = baseFileContent[0..mergeStartScope].count("\n") + 1
+      end
+
+      # declaration = declarationPoints[0]
+      # indexOfDeclaration = originalFileContent.index(declaration)
+      # declarationLine = originalFileContent[0..indexOfDeclaration].count "\n"
+      #
+      # if declarationPoints.length > 1 # TODO: remove this && false
+      #   declarationPoints.each do |decls|
+      #     puts decls
+      #   end
+      #   puts "error"
+      #   puts "need verify the context to know what declaration is true"
+      #   return
+      # else
+      #   indexOfDeclaration = originalFileContent.index(declarationPoints[0])
+      #   declarationLine = originalFileContent[0..indexOfDeclaration].count "\n"
+      # end
+
+      # set declaration again and delete baseCommit
+      puts "try set "
+      puts declaration
+      puts "in line: "
+      puts declarationLine
+      puts "where the file has lines equals to: "
+      puts mergeFileContent.count("\n")
+      setDeclaration(declaration, declarationLine)
+      deleteClone()
+    rescue StandardError => ex
+      puts ex
+      deleteClone()
+    end
+  end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   def getMethodName(content, line)
     linePoint = 0
     lineCount = 0
+
     while lineCount < line - 1
       linePoint = linePoint + content[linePoint..-1].index("\n") + 1
+      puts content[linePoint..-1]
+      puts "linePoint = #{linePoint}"
       lineCount = lineCount + 1
     end
     contentBeforeLine = content[0..linePoint]
@@ -209,7 +243,7 @@ class FixUnavailableSymbol
 
   def getMethodScope(fileContent, methodName) 
     # search for method name
-    # methodDeclaration = fileContent.scan(/[^return].* #{@missingVar}[;| ].*;*/)
+    # methodDeclaration = fileContent.scan(/[^return].* #{@missingMethod}[;| ].*;*/)
     # methodDeclarations = fileContent.scan(/[private |public |protected ]*[\W|\w|\<|\>]*[ ]+#{methodName}[ ]*\([\w|\W|\<|\>|,| ]*\)[ ]*{/)
     methodDeclaration = fileContent.scan(/#{methodName}[\p{Space}]*\([\w|\p{Space}|,|\?|\<|\>|\[|\]]*\)[\p{Space}]*{/)[0]
     
@@ -287,8 +321,9 @@ class FixUnavailableSymbol
 
   def makeCommit()
     Dir.chdir(@projectPath)
-    commitMesssage = "Build Conflict resolved automatic, reinsert " << @missingVar << " declaration in " << @filePath
+    commitMesssage = "Build Conflict resolved automatic, reinsert " << @missingMethod << " declaration in " << @filePath
     %x(git add -u)
     %x(git commit -m "#{commitMesssage}")
   end
+
 end
