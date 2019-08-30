@@ -214,6 +214,10 @@ class BCUnavailableSymbol
 	end
 
 
+
+
+
+	
 	def verifyBuildConflict(baseLeft, leftResult, baseRight, rightResult, basePath, leftPath, rightPath, resultPath)
 		count = 0
 		#print("verified")
