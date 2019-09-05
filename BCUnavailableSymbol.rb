@@ -90,7 +90,7 @@ class BCUnavailableSymbol
 
 			kill = %x(pkill -f gumtree)
 			sleep(5)
-		rescue Exception => e
+		rescue StandardError => e
 			puts e
 			puts "GumTree Failed"
 		end
@@ -214,28 +214,52 @@ class BCUnavailableSymbol
 	end
 
 
-
+	def checkNewMethodAddition(listAddedFiles, file)
+		begin
+			listAddedFiles.each do |oneFile|
+				if (oneFile.include? file)
+					return true
+				end
+			end
+			return false
+		rescue
+			return false
+		end
+	end
 
 
 	
 	def verifyBuildConflict(baseLeft, leftResult, baseRight, rightResult, basePath, leftPath, rightPath, resultPath)
 		count = 0
-		#print("verified")
+		puts ("verified")
+		puts "#{@conflictCauses}"
 		while(count < @conflictCauses.size)
 
 			if(baseRight[0][@conflictCauses[count][0]] != nil and baseRight[0][@conflictCauses[count][0]].to_s.match(/Delete SimpleName: #{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))
-				if (baseLeft[0][@conflictCauses[count][2]] != nil and baseLeft[0][@conflictCauses[count][2]].to_s.match(/Insert (SimpleName|QualifiedName): [a-zA-Z\.]*?#{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))
-					puts "BSRGHT:\n#{baseRight}"
-					puts "BSLEFT:\n#{baseLeft}"
-					return @conflictCauses[count][1]
+				puts "estado 1"
+				substituter = baseRight[0][@conflictCauses[count][0]].to_s.sub(/[\s\S]*Update SimpleName: #{@conflictCauses[count][1]}\([0-9]+\) to /,"")
+				substituter.sub!(/( |\()[\s\S]+/,"")
+				if checkNewMethodAddition(baseLeft[1], @conflictCauses[count][2])
+					puts "estado 5"
+					puts "substituter = #{substituter}"
+					return @conflictCauses[count][1],substituter
 				end
+				if (baseLeft[0][@conflictCauses[count][2]] != nil and baseLeft[0][@conflictCauses[count][2]].to_s.match(/Insert (SimpleName|QualifiedName): [a-zA-Z\.]*?#{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))
+					puts "estado 2"
+					return @conflictCauses[count][1], substituter
+				end
+
 			end
 			if(baseLeft[0][@conflictCauses[count][0]] != nil and baseLeft[0][@conflictCauses[count][0]].to_s.match(/Delete SimpleName: #{@conflictCauses[count][1]}[\s\S]*[\n\r]?: /))
+				puts "estado 3"
+				substituter = baseLeft[0][@conflictCauses[count][0]].to_s.sub(/[\s\S]*Update SimpleName: #{@conflictCauses[count][1]}\([0-9]+\) to /,"")
+				substituter = substituter.sub(/( |\()[\s\S]+/,"")
+				if checkNewMethodAddition(baseRight[1], @conflictCauses[count][2])
+					puts "estado 6"
+					return @conflictCauses[count][1],substituter
+				end
 				if(baseRight[0][@conflictCauses[count][2]] != nil and baseRight[0][@conflictCauses[count][2]].to_s.match(/Insert (SimpleName|QualifiedName): [a-zA-Z\.]*?#{@conflictCauses[count][1]}[\s\S]*[\n\r]?/))
-
-					substituter = baseLeft[0][@conflictCauses[count][0]].to_s.sub(/[\s\S]*Update SimpleName: #{@conflictCauses[count][1]}\([0-9]+\) to /,"")
-					substituter = substituter.sub(/( |\()[\s\S]+/,"")
-					#Update SimpleName: #{@conflictCauses[count][1]}(260) to builder on Method builderWithHighestTrackableLatencyMillis
+					puts "estado 4"
 					return @conflictCauses[count][1], substituter
 				end
 			end

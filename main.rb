@@ -52,15 +52,13 @@ conflictResult = gitProject.conflictScenario(commitHash) #aqui vamos pegar o par
 gitProject.deleteProject()
 
 #TIRAR ESSE#if conflictResult[0] #se existir 2 parents
-if 1
+if conflictResult[0]
   conflictParents = conflictResult[1] #conflictParents = parentMerge
   #ESTRUTURA [PAI1,PAI2,FILHO]
-  #TIRAR ESSE #travisLog = gitProject.getTravisLog(commitHash)#pegar a log do nosso commit
+  travisLog = gitProject.getTravisLog(commitHash)#pegar a log do nosso commit
 
   unavailableSymbolExtractor = UnavailableSymbolExtractor.new()
-  #TIRAR ESSE #unavailableResult = unavailableSymbolExtractor.extractionFilesInfo(travisLog)
-  unavailableResult = ["unavailableSymbolMethod", [["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"], ["PerHostPercentileTracker", "builderWithHighestTrackableLatencyMillis", "Activator", "/home/travis/build/datastax/java-driver/driver-tests/osgi/src/main/java/com/datastax/driver/osgi/impl/Activator.java:", "[77,89]"]], 9]
-
+  unavailableResult = unavailableSymbolExtractor.extractionFilesInfo(travisLog)
 
 
   if unavailableResult[0] == "unavailableSymbolVariable"
